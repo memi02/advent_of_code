@@ -5,6 +5,7 @@
 using namespace std;
 
 int pow(int b, int e);
+bool contains(char *container, int l_container, char *content, int l_content);
 
 int main(int argc, char const *argv[]) {
   if (argc != 2) {
@@ -23,46 +24,43 @@ int main(int argc, char const *argv[]) {
 
   long int sum = 0;
 
-  char translator[7];  // in 0 there's the translation of a, in 1 of b ...
-  int count[7] = {0};
-  int one[2];
-  int four[4];
+  char one[3];
+  char four[5];
+  char fourMinusOne[3];
 
   while (in >> buffer) {
     // cout << buffer << " ";
     if (c < 10) {
       if (strlen(buffer) == 2) {
         for (int i = 0; i < 2; i++) {
-          one[i] = buffer[i] - 'a';
+          one[i] = buffer[i];
         }
       } else if (strlen(buffer) == 4) {
         for (int i = 0; i < 4; i++) {
-          four[i] = buffer[i] - 'a';
+          four[i] = buffer[i];
         }
-      }
-      for (int i = 0; i < strlen(buffer); i++) {
-        count[buffer[i] - 'a']++;
       }
     } else if (c == 10) {
-      // in base al numero di volte che ogni lettera compare sono in grado di
-      // definire quale dei segmenti rappresenta
-      for (int i = 0; i < 7; i++) {
-        switch (count[i]) {
-          case 4:
-            translator[4] = i + 'a';
-            break;
-          case 6:
-            translator[1] = i + 'a';
-            break;
-          case 8:
-            bool f = false;
-            for (int j = 0; j < 2; j++)
-              if (i == one[j]) f = true;
-            if (f) translator[2] = i + 'a';
-            break;
+      // cout << "One: " << one << endl;
+      // cout << "Four: " << four << endl;
+
+      {
+        int k = 0;
+        for (int i = 0; i < 4; i++) {
+          bool found = false;
+          for (int j = 0; j < 2; j++) {
+            if (four[i] == one[j]) found = true;
+          }
+          if (!found) {
+            fourMinusOne[k] = four[i];
+            k++;
+          }
         }
+        fourMinusOne[2] = '\0';
       }
+      // cout << "FourMinusOne: " << fourMinusOne << endl << endl;
     } else if (c > 10) {
+      // cout << "Buffer: " << buffer << endl;
       // cout << "Strlen: " << strlen(buffer) << endl;
       switch (strlen(buffer)) {
           // 1
@@ -83,38 +81,34 @@ int main(int argc, char const *argv[]) {
           break;
         // 0 6 9
         case 6: {
-          bool isE = false, isC = false;
-          for (int i = 0; i < 7; i++) {
-            if (buffer[i] == translator[4]) isE = true;
-            if (buffer[i] == translator[2]) isC = true;
+          // if it contains the one is
+          if (contains(buffer, 7, four, 5)) {
+            // 9
+            sum += 9 * pow(10, 14 - c);
+          } else if (contains(buffer, 7, fourMinusOne, 3)) {
+            // 6
+            sum += 6 * pow(10, 14 - c);
           }
-          // 6
-          if (!isC) sum += 6 * pow(10, 14 - c);
-          // 9
-          if (!isE) sum += 9 * pow(10, 14 - c);
-          // nel caso dello 0 non dovrei sommare nulla
+          // 0
+          // I don't need to do anything, because I would sum 0
         } break;
         // 2 3 5
         case 5: {
-          bool isE = false, isB = false;
-          for (int i = 0; i < 7; i++) {
-            if (buffer[i] == translator[4]) isE = true;
-            if (buffer[i] == translator[1]) isB = true;
+          if (contains(buffer, 6, one, 3)) {
+            // 3
+            sum += 3 * pow(10, 14 - c);
+          } else if (contains(buffer, 8, fourMinusOne, 3)) {
+            // 5
+            sum += 5 * pow(10, 14 - c);
+          } else {
+            // 2
+            sum += 2 * pow(10, 14 - c);
           }
-          // 2
-          if (isE) sum += 2 * pow(10, 14 - c);
-          // 3
-          if (!isB && !isE) sum += 3 * pow(10, 14 - c);
-          // 5
-          if (isB) sum += 5 * pow(10, 14 - c);
         } break;
       }
-      // cout << "Sum: " << sum << endl;
+      // cout << "Sum: " << sum << endl << endl;
       if (c == 14) {
         c = -1;
-        for (int i = 0; i < 7; i++) {
-          count[i] = 0;
-        }
       };
     }
     c++;
@@ -128,4 +122,36 @@ int pow(int b, int e) {
     r *= b;
   }
   return r;
+}
+
+// bool contains(char *container, int l_container, char *content, int l_content)
+// {
+//   for (int i = 0; i < l_container - 1; i++) {
+//     cout << "Evaluating container value: " << container[i] << endl;
+//     bool found = false;
+//     for (int j = 0; j < l_content - 1; j++) {
+//       cout << "matching content: " << content[j] << endl;
+//       if (container[i] == content[j]) found = true;
+//     }
+//     cout << "Found: " << ((found) ? "true" : "false") << endl;
+//     if (!found) return false;
+//   }
+//   return true;
+// }
+
+bool contains(char *container, int l_container, char *content, int l_content) {
+  for (int i = 0; i < l_content - 1; i++) {
+    // cout << "To find: " << content[i] << endl;
+    bool found = false;
+    for (int j = 0; j < l_container - 1; j++) {
+      // cout << "Searching: " << container[j] << endl;
+      if (content[i] == container[j]) {
+        found = true;
+        break;
+      }
+    }
+    // cout << "Found: " << ((found) ? "true" : "false") << endl;
+    if (!found) return false;
+  }
+  return true;
 }
