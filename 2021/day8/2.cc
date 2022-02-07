@@ -22,7 +22,7 @@ int main(int argc, char const *argv[]) {
   char buffer[8];
   int c = 0;
 
-  long int sum = 0;
+  long long int sum = 0;
 
   char one[3];
   char four[5];
@@ -31,6 +31,7 @@ int main(int argc, char const *argv[]) {
   while (in >> buffer) {
     // cout << buffer << " ";
     if (c < 10) {
+      // I identify the number one and four based on their lenght
       if (strlen(buffer) == 2) {
         for (int i = 0; i < 2; i++) {
           one[i] = buffer[i];
@@ -45,6 +46,8 @@ int main(int argc, char const *argv[]) {
       // cout << "Four: " << four << endl;
 
       {
+        // I found what the two pieces that are on the four but not on the one
+        // are
         int k = 0;
         for (int i = 0; i < 4; i++) {
           bool found = false;
@@ -62,6 +65,9 @@ int main(int argc, char const *argv[]) {
     } else if (c > 10) {
       // cout << "Buffer: " << buffer << endl;
       // cout << "Strlen: " << strlen(buffer) << endl;
+
+      // I find out what number I'm looking at based on the number of carachters
+      // it's made of and add it to the total counting his position
       switch (strlen(buffer)) {
           // 1
         case 2:
@@ -123,21 +129,6 @@ int pow(int b, int e) {
   }
   return r;
 }
-
-// bool contains(char *container, int l_container, char *content, int l_content)
-// {
-//   for (int i = 0; i < l_container - 1; i++) {
-//     cout << "Evaluating container value: " << container[i] << endl;
-//     bool found = false;
-//     for (int j = 0; j < l_content - 1; j++) {
-//       cout << "matching content: " << content[j] << endl;
-//       if (container[i] == content[j]) found = true;
-//     }
-//     cout << "Found: " << ((found) ? "true" : "false") << endl;
-//     if (!found) return false;
-//   }
-//   return true;
-// }
 
 bool contains(char *container, int l_container, char *content, int l_content) {
   for (int i = 0; i < l_content - 1; i++) {
