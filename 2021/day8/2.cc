@@ -103,7 +103,7 @@ int main(int argc, char const *argv[]) {
           if (contains(buffer, 6, one, 3)) {
             // 3
             sum += 3 * pow(10, 14 - c);
-          } else if (contains(buffer, 8, fourMinusOne, 3)) {
+          } else if (contains(buffer, 6, fourMinusOne, 3)) {
             // 5
             sum += 5 * pow(10, 14 - c);
           } else {
@@ -142,7 +142,11 @@ bool contains(char *container, int l_container, char *content, int l_content) {
       }
     }
     // cout << "Found: " << ((found) ? "true" : "false") << endl;
-    if (!found) return false;
+    if (!found) {
+      // cout << endl;
+      return false;
+    }
   }
+  // cout << endl;
   return true;
 }
