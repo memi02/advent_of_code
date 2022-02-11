@@ -47,7 +47,7 @@ void deinit(queue *q) {
 void print(queue *q) {
   node *tmp = q->first;
   while (tmp != NULL) {
-    std::cout << tmp->val << ",";
+    std::cout << "x: " << tmp->val.x << ", y: " << tmp->val.y << std::endl;
     tmp = tmp->next;
   }
   std::cout << std::endl;

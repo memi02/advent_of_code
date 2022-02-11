@@ -1,7 +1,10 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
-typedef int dato;
+struct dato {
+  int x;
+  int y;
+};
 
 struct node {
   dato val;
