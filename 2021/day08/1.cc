@@ -18,7 +18,7 @@ int main(int argc, char const *argv[]) {
     exit(0);
   }
 
-  char buffer[8];
+    char buffer[8];
   int c = 0;
   int counter = 0;
   for (in >> buffer; !in.eof(); in >> buffer) {
