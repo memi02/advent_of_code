@@ -50,22 +50,26 @@ int main(int argc, char const *argv[]) {
   }
 
   // I print the same thing from the input document, to be sure they're right
-  sequence->print();
-  cout << endl;
-  for (int i = 0; i < c; i++) {
-    cout << toFind[i] << " -> " << toInsert[i] << endl;
-  }
+  // sequence->print();
+  // cout << endl;
+  // for (int i = 0; i < c; i++) {
+  //   cout << toFind[i] << " -> " << toInsert[i] << endl;
+  // }
 
   for (int i = 0; i < 10; i++) {
     sequence->insertBetweenLetters(toFind, toInsert, c);
+    cout << endl << "cycle n. " << i << endl;
+    int *f = sequence->charachterFrequences();
+    for (int i = 0; i < 26; i++)
+      if (f[i] != 0) cout << char('A' + i) << ": " << f[i] << endl;
   }
 
   cout << "Sequence lenght: " << sequence->length() << endl;
 
   int *frequences = sequence->charachterFrequences();
-  for (int i = 0; i < 26; i++) {
-    cout << char('A' + i) << ": " << frequences[i] << endl;
-  }
+  // for (int i = 0; i < 26; i++) {
+  //   cout << char('A' + i) << ": " << frequences[i] << endl;
+  // }
 
   cout << "Answer: " << max(frequences, 26) - min(frequences, 26) << endl;
 

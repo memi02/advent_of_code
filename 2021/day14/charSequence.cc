@@ -31,8 +31,9 @@ void charSequence::input(char in[]) {
 
 void charSequence::input(char in) {
   character *tmp = new character(in);
-  tmp->prev = NULL;
-  tmp->next = last;
+  tmp->prev = last;
+  tmp->next = NULL;
+  if (last != NULL) last->next = tmp;
 
   if (first == NULL) first = tmp;
   last = tmp;
