@@ -21,5 +21,6 @@ int main(int argc, char const *argv[])
     out.open("output.txt", std::ios::out);
     */
 
+    in.close();
     return 0;
 }
