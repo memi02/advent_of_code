@@ -80,6 +80,9 @@
         "memory_resource": "cpp",
         "utility": "cpp",
         "stop_token": "cpp",
-        "cinttypes": "cpp"
+        "cinttypes": "cpp",
+        "*.inc": "cpp",
+        "filesystem": "cpp",
+        "version": "cpp"
     }
 }
