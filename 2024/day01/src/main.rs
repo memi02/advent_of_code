@@ -25,7 +25,6 @@ fn solve(mut v1: Vec<i32>, mut v2: Vec<i32>) -> i32 {
     v2.sort();
 
     v1.into_iter()
-        .zip(v2.into_iter())
-        .map(|(a, b)| (a - b).abs())
+        .map(|n| n * v2.iter().filter(|e| e == &&n).count() as i32)
         .sum()
 }
