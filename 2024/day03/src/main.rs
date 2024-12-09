@@ -1,7 +1,6 @@
 use std::fs::File;
 use std::io::prelude::*;
 use std::io::BufReader;
-use std::thread::sleep;
 
 const MUL_DELTA: usize = 4;
 const COMMA_DELTA: usize = 1;
