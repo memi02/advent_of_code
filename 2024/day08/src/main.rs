@@ -9,14 +9,16 @@ fn main() -> std::io::Result<()> {
     let mut input = String::new();
     buf_reader.read_to_string(&mut input)?;
 
+    let max_size = input.lines().count();
+
     let mut map = Array2D::from_iter_row_major(
         input
             .lines()
             .map(|l| l.chars())
             .flatten()
             .map(|c| Cell::from_char(c)),
-        input.lines().count(),
-        input.lines().count(),
+        max_size,
+        max_size,
     )
     .expect("The map is always square");
 
@@ -30,19 +32,23 @@ fn main() -> std::io::Result<()> {
                 if map[second_pos].antenna.is_some_and(|f| f == freq) {
                     let delta = first_pos.delta_to(second_pos);
                     println!("{:?}, {:?} delta: {:?}", first_pos, second_pos, delta);
-                    if let Some(antinode_pos) = first_pos.add_delta(delta) {
-                        println!("Antinode pos: {:?}", antinode_pos);
+                    let mut start_pos = first_pos;
+                    while let Some(antinode_pos) = start_pos.sub_delta(delta, max_size) {
+                        println!("Antinode pos fow: {:?}", antinode_pos);
                         match map.get_mut(antinode_pos.0, antinode_pos.1) {
                             Some(antinode_cell) => antinode_cell.is_antinode = true,
                             None => {}
                         }
+                        start_pos = antinode_pos;
                     }
-                    if let Some(antinode_pos) = second_pos.sub_delta(delta) {
-                        println!("Antinode pos: {:?}", antinode_pos);
+                    start_pos = second_pos;
+                    while let Some(antinode_pos) = start_pos.add_delta(delta, max_size) {
+                        println!("Antinode pos back: {:?}", antinode_pos);
                         match map.get_mut(antinode_pos.0, antinode_pos.1) {
                             Some(antinode_cell) => antinode_cell.is_antinode = true,
                             None => {}
                         }
+                        start_pos = antinode_pos;
                     }
                 }
             }
@@ -96,8 +102,8 @@ trait Delta {
     type Delta;
     fn delta_to(self, rhs: Self) -> Self::Delta;
 
-    fn add_delta(self, delta: Self::Delta) -> Option<(usize, usize)>;
-    fn sub_delta(self, delta: Self::Delta) -> Option<(usize, usize)>;
+    fn add_delta(self, delta: Self::Delta, max_size: usize) -> Option<(usize, usize)>;
+    fn sub_delta(self, delta: Self::Delta, max_size: usize) -> Option<(usize, usize)>;
 }
 
 impl Delta for (usize, usize) {
@@ -110,17 +116,17 @@ impl Delta for (usize, usize) {
         )
     }
 
-    fn add_delta(self, delta: Self::Delta) -> Option<Self> {
+    fn add_delta(self, delta: Self::Delta, max_size: usize) -> Option<(usize, usize)> {
         let res = (self.0 as isize + delta.0, self.1 as isize + delta.1);
-        if res.0 >= 0 && res.1 >= 0 {
+        if res.0 >= 0 && res.0 < max_size as isize && res.1 >= 0 && res.1 < max_size as isize {
             Some((res.0 as usize, res.1 as usize))
         } else {
             None
         }
     }
-    fn sub_delta(self, delta: Self::Delta) -> Option<Self> {
+    fn sub_delta(self, delta: Self::Delta, max_size: usize) -> Option<Self> {
         let res = (self.0 as isize - delta.0, self.1 as isize - delta.1);
-        if res.0 >= 0 && res.1 >= 0 {
+        if res.0 >= 0 && res.0 < max_size as isize && res.1 >= 0 && res.1 < max_size as isize {
             Some((res.0 as usize, res.1 as usize))
         } else {
             None
