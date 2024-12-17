@@ -57,7 +57,7 @@ impl Equation {
             if let Some(value) = equation.values.get(idx) {
                 test_rec(equation, idx + 1, partial_result + value)
                     || test_rec(equation, idx + 1, partial_result * value)
-                // || test_rec(equation, idx + 1, concat(partial_result, value.clone()))
+                    || test_rec(equation, idx + 1, concat(partial_result, value.clone()))
             } else {
                 // if I'm here I have reached the end of the values and I can evaluate the results
                 partial_result == equation.result
