@@ -23,50 +23,51 @@ fn main() -> std::io::Result<()> {
         })
         .collect::<Vec<_>>();
 
-    let mut first_empty_block = 1;
-    println!("First empty block: {}", first_empty_block);
-    let mut moving = map.len() - 1;
+    let mut empty_block = 0;
+    // Tecnically out of bounds, but otherwise the last element in the array will be skipped
+    let mut moving = map.len();
 
-    if map[moving].is_empty() {
-        moving -= 1;
-    }
-    println!("Moving: {}", moving);
-
-    while first_empty_block < moving {
+    while moving > find_last_to_move(&map) {
+        moving = find_next_to_move(&map, moving);
+        empty_block = find_first_empty_block(&map);
         // println!(
-        //     "{}",
-        //     map.iter().map(|b| format!("{} ", b)).collect::<String>(),
-        // );
-        // println!(
-        //     "Map len: {}, first empty block: {}, moving: {}",
+        //     "Map len: {}, empty block: {}, moving: {}",
         //     map.len(),
-        //     first_empty_block,
+        //     empty_block,
         //     moving
         // );
-        println!(
-            "Delta between empty and moving {}/{}",
-            moving - first_empty_block,
-            map.len()
-        );
-        match map[first_empty_block].lenght.cmp(&map[moving].lenght) {
-            std::cmp::Ordering::Less => {
-                map[first_empty_block].id = map[moving].id;
-                map[moving].lenght -= map[first_empty_block].lenght;
-                first_empty_block = find_next_empty_block(&map, first_empty_block);
-            }
-            std::cmp::Ordering::Equal => {
-                map.swap(first_empty_block, moving);
-                first_empty_block = find_next_empty_block(&map, first_empty_block);
-                moving = find_next_to_move(&map, moving);
-            }
-            std::cmp::Ordering::Greater => {
-                map.insert(
-                    first_empty_block + 1,
-                    Block::empty(map[first_empty_block].lenght - map[moving].lenght),
-                );
-                // Nedded because of the new block added
-                moving += 1;
-                map[first_empty_block].lenght = map[moving].lenght;
+        // println!("{}/{}", empty_block, map.len());
+        // println!(
+        //     "{}",
+        //     map.iter().map(|b| format!("{}", b)).collect::<String>(),
+        // );
+        while empty_block < moving {
+            // println!(
+            //     "empty_block: {}, [{}]",
+            //     empty_block, map[empty_block].lenght
+            // );
+            // println!("moving: {}, [{}]", moving, map[moving].lenght);
+            match map[empty_block].lenght.cmp(&map[moving].lenght) {
+                std::cmp::Ordering::Less => {
+                    // println!("Less");
+                    empty_block = find_next_empty_block(&map, empty_block);
+                }
+                std::cmp::Ordering::Equal => {
+                    // println!("Equal");
+                    // println!("Moving {}", map[moving].id.unwrap());
+                    map.swap(empty_block, moving);
+                    break;
+                }
+                std::cmp::Ordering::Greater => {
+                    // println!("Greater");
+                    map.insert(
+                        empty_block + 1,
+                        Block::empty(map[empty_block].lenght - map[moving].lenght),
+                    );
+                    // Nedded because of the new block added
+                    moving += 1;
+                    map[empty_block].lenght = map[moving].lenght;
+                }
             }
         }
     }
@@ -74,10 +75,14 @@ fn main() -> std::io::Result<()> {
     println!(
         "{}",
         map.iter()
-            .filter(|b| !b.is_empty())
             .fold((0u128, 0u128), |mut acc, b| {
-                for i in acc.1..acc.1 + b.lenght as u128 {
-                    acc.0 += b.id.expect("Only non empty blocks should be left") as u128 * i
+                match b.id {
+                    Some(id) => {
+                        for i in acc.1..acc.1 + b.lenght as u128 {
+                            acc.0 += id as u128 * i
+                        }
+                    }
+                    None => {}
                 }
                 acc.1 += b.lenght as u128;
                 acc
@@ -116,21 +121,14 @@ impl Display for Block {
         match self.id {
             Some(id) => write!(
                 f,
-                "{}[{}]",
+                "{}",
                 (0..self.lenght).map(|_| id.to_string()).collect::<String>(),
-                self.lenght
             ),
-            None => write!(
-                f,
-                "{}[{}]",
-                (0..self.lenght).map(|_| '.').collect::<String>(),
-                self.lenght
-            ),
+            None => write!(f, "{}", (0..self.lenght).map(|_| '.').collect::<String>(),),
         }
     }
 }
 
-// I assume that first_empty_block is not empty
 // This will panic if there are no empty blocks left, but this should be impossible
 fn find_next_empty_block(map: &[Block], first_empty_block: usize) -> usize {
     let mut res = first_empty_block + 1;
@@ -140,12 +138,43 @@ fn find_next_empty_block(map: &[Block], first_empty_block: usize) -> usize {
     res
 }
 
-// I assume that moving is empty
+fn find_last_empty_block(map: &[Block]) -> usize {
+    let mut res = map.len() - 1;
+    while !map[res].is_empty() {
+        res -= 1;
+    }
+    res
+}
+
+fn find_first_empty_block(map: &[Block]) -> usize {
+    let mut res = 0;
+    while !map[res].is_empty() {
+        res += 1;
+    }
+    res
+}
+
 // This will panic if there are no filled blocks left, but this should be impossible
 fn find_next_to_move(map: &[Block], moving: usize) -> usize {
     let mut res = moving - 1;
     while map[res].is_empty() {
         res -= 1;
+    }
+    res
+}
+
+fn find_first_to_move(map: &[Block]) -> usize {
+    let mut res = map.len() - 1;
+    while map[res].is_empty() {
+        res -= 1;
+    }
+    res
+}
+
+fn find_last_to_move(map: &[Block]) -> usize {
+    let mut res = 0;
+    while map[res].is_empty() {
+        res += 1;
     }
     res
 }
