@@ -1,12 +1,8 @@
-use std::fs::File;
-use std::io::prelude::*;
-use std::io::BufReader;
+use count_digits::CountDigits;
+use memoize::memoize;
 
 fn main() -> std::io::Result<()> {
-    let file = File::open("input.txt")?;
-    let mut buf_reader = BufReader::new(file);
-    let mut input = String::new();
-    buf_reader.read_to_string(&mut input)?;
+    let input = include_str!("input.txt");
 
     let mut stones = input
         .lines()
@@ -16,34 +12,30 @@ fn main() -> std::io::Result<()> {
         .map(|s| s.parse::<u128>().expect("All stones should have numbers"))
         .collect::<Vec<_>>();
 
-    for _ in 0..25 {
-        for i in 0..stones.len() {
-            match stones[i] {
-                0 => stones[i] = 1,
-                n => {
-                    let n_str = n.to_string();
-                    if n_str.len() % 2 == 0 {
-                        let nums_str = n_str.split_at(n_str.len() / 2);
-                        let nums = (
-                            nums_str
-                                .0
-                                .parse::<u128>()
-                                .expect("There should only be numbers"),
-                            nums_str
-                                .1
-                                .parse::<u128>()
-                                .expect("There should only be numbers"),
-                        );
-                        stones[i] = nums.0;
-                        stones.push(nums.1);
-                    } else {
-                        stones[i] = stones[i] * 2024
-                    }
-                }
-            }
-        }
+    stones.sort();
+    let mut res = 0;
+    for stone in stones {
+        res += count_stone(stone, 75);
     }
 
-    println!("{}", stones.len());
+    println!("{}", res);
     Ok(())
+}
+
+#[memoize]
+fn count_stone(stone: u128, blinks: u32) -> u128 {
+    if blinks == 0 {
+        return 1;
+    }
+    if stone == 0 {
+        count_stone(1, blinks - 1)
+    } else {
+        let digit_count = stone.count_digits();
+        if digit_count % 2 == 0 {
+            count_stone(stone / (10u128.pow(digit_count as u32 / 2)), blinks - 1)
+                + count_stone(stone % (10u128.pow(digit_count as u32 / 2)), blinks - 1)
+        } else {
+            count_stone(stone * 2024, blinks - 1)
+        }
+    }
 }
