@@ -1,7 +1,7 @@
 use array2d::Array2D;
 
 fn main() {
-    let input = include_str!("input.txt");
+    let input = include_str!("test.txt");
 
     let map_size = input.lines().count();
 
@@ -19,7 +19,10 @@ fn main() {
         if !visited[pos] {
             let ans = evaluate_plot(&map, &mut visited, pos);
             result += ans.0 * ans.1;
-            println!("{} {} {}", map[pos], ans.0, ans.1);
+            println!(
+                "{} {} {} AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+                map[pos], ans.0, ans.1
+            );
         }
     }
 
@@ -37,54 +40,86 @@ fn evaluate_plot(
 
     let mut res = (1, 0);
 
+    let mut left = false;
+    let mut right = false;
+    let mut up = false;
+    let mut down = false;
+
     if pos.0 != 0 {
         let next_pos = (pos.0 - 1, pos.1);
-        if is_same_plot(map, next_pos, map[pos]) {
+        if is_same_plant(map, next_pos, map[pos]) {
             if is_not_visited(visited, next_pos) {
                 let ans = evaluate_plot(map, visited, next_pos);
                 res.0 += ans.0;
                 res.1 += ans.1;
             }
         } else {
-            res.1 += 1;
+            up = true;
         }
     } else {
-        res.1 += 1;
+        up = true;
     }
     if pos.1 != 0 {
         let next_pos = (pos.0, pos.1 - 1);
-        if is_same_plot(map, next_pos, map[pos]) {
+        if is_same_plant(map, next_pos, map[pos]) {
             if is_not_visited(visited, next_pos) {
                 let ans = evaluate_plot(map, visited, next_pos);
                 res.0 += ans.0;
                 res.1 += ans.1;
             }
         } else {
-            res.1 += 1;
+            left = true;
         }
     } else {
-        res.1 += 1;
+        left = true;
     }
 
     let next_pos = (pos.0, pos.1 + 1);
-    if is_same_plot(map, next_pos, map[pos]) {
+    if is_same_plant(map, next_pos, map[pos]) {
         if is_not_visited(visited, next_pos) {
             let ans = evaluate_plot(map, visited, next_pos);
             res.0 += ans.0;
             res.1 += ans.1;
         }
     } else {
-        res.1 += 1;
+        right = true;
     }
 
     let next_pos = (pos.0 + 1, pos.1);
-    if is_same_plot(map, next_pos, map[pos]) {
+    if is_same_plant(map, next_pos, map[pos]) {
         if is_not_visited(visited, next_pos) {
             let ans = evaluate_plot(map, visited, next_pos);
             res.0 += ans.0;
             res.1 += ans.1;
         }
     } else {
+        down = true;
+    }
+
+    // println!("[{:?}] {} {} {} {}", pos, left, up, right, down);
+    //
+
+    // THIS DOES NOT WORK BECAUSE IT CANT COUNT ANGLES EXTERNALLY
+
+    if left && up {
+        res.1 += 1;
+    }
+    if up && right {
+        res.1 += 1;
+    }
+    if right && down {
+        res.1 += 1;
+    }
+    if down && left {
+        res.1 += 1;
+    }
+
+    if vec![left, up, right, down]
+        .into_iter()
+        .filter(|b| *b)
+        .count()
+        == 3
+    {
         res.1 += 1;
     }
 
@@ -92,7 +127,7 @@ fn evaluate_plot(
 }
 
 /// will not painc if out of bounds
-fn is_same_plot(map: &Array2D<char>, pos: (usize, usize), plot: char) -> bool {
+fn is_same_plant(map: &Array2D<char>, pos: (usize, usize), plot: char) -> bool {
     map.get(pos.0, pos.1).is_some_and(|c| *c == plot)
 }
 
